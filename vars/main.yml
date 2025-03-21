@@ -16,6 +16,11 @@ create_files:
     mode:               '0755'
     state:              'directory'
     path:               '/etc/mediawiki/check_files'
+  - owner:              'www-data'
+    group:              'www-data'
+    mode:               '0755'
+    state:              'directory'
+    path:               '/var/lib/mediawiki/images/deleted'
 install_files:
   - owner:              'root'
     group:              'root'
@@ -60,6 +65,8 @@ restart_services:
   - 'nginx'
   - "{{ php_fpm }}"     # Needs to restart after apcu install.
 wiki_db_pass:           "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_database') }}"
+wgSecretKey:            "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_secret_key') }}"
+wgUpgradeKey:            "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_upgrade_key') }}"
 check_file_database:    "/etc/mediawiki/check_files/database_is_created.txt"
 check_file_user:        "/etc/mediawiki/check_files/user_is_created.txt"
 check_file_permissions: "/etc/mediawiki/check_files/permissions_are_set.txt"

@@ -101,14 +101,14 @@ $wgLocaltimezone = "UTC";
 ## be publicly accessible from the web.
 #$wgCacheDirectory = "$IP/cache";
 
-$wgSecretKey = "cad77db81256e2cbf1ed78a93d56d593a3ee6b61341691814580924ed8279526";
+$wgSecretKey = "{{ wgSecretKey }}";
 
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = "1";
 
 # Site upgrade key. Must be set to a string (default provided) to turn on the
 # web installer while LocalSettings.php is in place
-$wgUpgradeKey = "ff423d8b16994547";
+$wgUpgradeKey = "{{ wgUpgradeKey }}";
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
@@ -128,7 +128,7 @@ $wgGroupPermissions['*']['read'] = false;
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, e.g. 'vector' or 'monobook':
-$wgDefaultSkin = "vector";
+$wgDefaultSkin = "timeless";
 
 # Enabled skins.
 # The following skins were automatically enabled:
