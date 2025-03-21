@@ -1,0 +1,5 @@
+server {
+  server_name           wiki wiki.{{ domain }}{% for domain_alias in domain_aliases %} wiki.{{ domain_alias }}{% endfor %};
+  return 301            https://wiki.{{ domain }}$request_uri;
+}
+

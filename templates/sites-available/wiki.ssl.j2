@@ -1,0 +1,51 @@
+server {
+  listen                443 ssl;
+  ssl_certificate       /etc/ssl/certs/chain.pem;
+  ssl_certificate_key   /etc/ssl/private/{{ inventory_hostname }}.pem;
+  server_name           wiki wiki.{{ domain }}{% for domain_alias in domain_aliases %} wiki.{{ domain_alias }}{% endfor %};
+
+  root                  /var/lib/mediawiki;
+  index                 index index.php index.html index.htm;
+
+  access_log            /var/log/nginx/wiki.access.log;
+  error_log             /var/log/nginx/wiki.error.log;
+
+  location ~ \.ht {
+    deny                all;
+  }
+
+  location / {
+    try_files           $uri $uri/ @rewrite;
+  }
+
+  location @rewrite {
+    rewrite             ^/(.*)$ /index.php;
+  }
+
+  location ^~ /maintenance/ {
+    return              403;
+  }
+
+  location ~ ^/images/.*\.php$ {
+    deny                all;
+  }
+
+  location ~ ^/images/ {
+    add_header          X-Content-Type-Options "nosniff";
+    types { 
+      text/plain        html htm shtml phtml php; 
+    }
+  }
+
+  location ~ ^/images/deleted/ {
+    deny                all;
+  }
+
+  location ~ \.php$ {
+    include             /etc/nginx/fastcgi_params;
+    fastcgi_pass        unix:/run/php/{{ php_fpm }}.sock;
+    fastcgi_index       index.php;
+    fastcgi_param       SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+    try_files           $uri @rewrite;
+  }
+}

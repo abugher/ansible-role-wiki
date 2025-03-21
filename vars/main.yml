@@ -2,11 +2,74 @@
 # https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu
 # https://wiki.debian.org/MediaWiki
 ---
+php_version:            "php8.2"
+php_fpm:                "{{ php_version }}-fpm"
+php_acpu:               "{{ php_version }}-apcu"
 install_packages:
-  - 'mediawiki'
+  - "imagemagick"
+  - "mediawiki"
+  - "{{ php_fpm }}"
+  - "{{ php_acpu }}"
+create_files:
+  - owner:              'root'
+    group:              'root'
+    mode:               '0755'
+    state:              'directory'
+    path:               '/etc/mediawiki/check_files'
 install_files:
-  - user:               'root'
+  - owner:              'root'
+    group:              'root'
+    mode:               '0755'
+    src:                'files/bin/mediawiki-jobs'
+    path:               '/usr/local/bin/mediawiki-jobs'
+  - owner:              'root'
+    group:              'root'
+    mode:               '0755'
+    src:                'files/init.d/mediawiki-jobs'
+    path:               '/etc/init.d/mediawiki-jobs'
+template_files:
+  - user:               "root"
+    group:              "root"
+    mode:               "0644"
+    src:                "templates/LocalSettings.php.j2"
+    dest:               "/etc/mediawiki/LocalSettings.php"
+  - owner:              'root'
     group:              'root'
     mode:               '0644'
-    src:                'files/conf/LocalSettings.php'
-    dest:               '/etc/mediawiki/LocalSettings.php'
+    src:                "templates/sites-available/wiki.j2"
+    dest:               '/etc/nginx/sites-available/wiki'
+  - owner:              'root'
+    group:              'root'
+    mode:               '0644'
+    src:                "templates/sites-available/wiki.ssl.j2"
+    dest:               '/etc/nginx/sites-available/wiki.ssl'
+symlinks:
+  - owner:              'root'
+    group:              'root'
+    src:                '/etc/nginx/sites-available/wiki'
+    dest:               '/etc/nginx/sites-enabled/wiki'
+  - owner:              'root'
+    group:              'root'
+    src:                '/etc/nginx/sites-available/wiki.ssl'
+    dest:               '/etc/nginx/sites-enabled/wiki.ssl'
+start_services:
+  - "mariadb"
+  - "{{ php_fpm }}"
+  - "mediawiki-jobs"
+restart_services:
+  - 'nginx'
+  - "{{ php_fpm }}"     # Needs to restart after apcu install.
+wiki_db_pass:           "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_database') }}"
+check_file_database:    "/etc/mediawiki/check_files/database_is_created.txt"
+check_file_user:        "/etc/mediawiki/check_files/user_is_created.txt"
+check_file_permissions: "/etc/mediawiki/check_files/permissions_are_set.txt"
+shell_commands:
+  - command:            mysql -u root <<< "CREATE DATABASE wiki;" && touch "{{ check_file_database }}"
+    creates:            "{{ check_file_database }}"
+    executable:         '/bin/bash'
+  - command:            MYSQL_HISTFILE=/dev/null mysql -u root <<< "CREATE USER 'www-data' IDENTIFIED VIA unix_socket;" && touch "{{ check_file_user }}"
+    creates:            "{{ check_file_user }}"
+    executable:         '/bin/bash'
+  - command:            mysql -u root <<< "GRANT ALL PRIVILEGES ON wiki.* TO 'www-data';" && touch "{{ check_file_permissions }}"
+    creates:            "{{ check_file_permissions }}"
+    executable:         '/bin/bash'

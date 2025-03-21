@@ -1,0 +1,111 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          mediawiki-jobs
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start mediawiki-jobs at boot time
+# Description:       Start mediawiki-jobs at boot time
+### END INIT INFO
+
+
+action="${1}"
+user=www-data
+pid_file=/var/run/mediawiki-jobs.pid
+
+function start {
+  echo -n "Starting..."
+  # If PID file exists:
+  if test -e $pid_file; then
+    pid=$(< $pid_file)
+    # If PID is running:
+    if ps -p $pid >/dev/null 2>&1; then
+      echo "Warning:  mediawiki-jobs already started with PID:  ${pid}"
+      return 0
+    fi
+    # If PID is not running:
+    if rm $pid_file; then
+      echo "Warning:  mediawiki-jobs not running, but PID file is present with PID:  ${pid}"
+    else
+      echo "Error:  Could not remove stale PID file:  ${pid_file}"
+      return 1
+    fi
+    echo "Warning:  ${pid_file} existed (removed), but PID ${pid} is not running."
+  fi
+
+  su -c /usr/local/bin/mediawiki-jobs $user > /var/log/mediawiki-jobs.log 2>&1 &
+  echo $! > $pid_file
+  disown
+  echo "OK"
+  return 0
+}
+
+
+function stop {
+  echo -n "Stopping..."
+  # If PID file exists
+  if test -e $pid_file; then
+    pid=$(< $pid_file)
+    # If PID is running
+    if ps -p $pid >/dev/null 2>&1; then
+      # If PID is killed
+      if kill $pid; then
+        rm $pid_file
+        echo "OK"
+        return 0
+      fi
+      echo "Error:  Failed to kill PID:  ${pid}"
+      return 1
+    fi
+    echo "Warning:  $pid_file exists, but PID ${pid} is not running."
+    ls -ld $pid_file
+    return 0
+  fi
+
+  echo "Warning:  mediawiki-jobs does not appear to be started."
+  return 0
+}
+
+
+function status {
+  echo -en "Status:  "
+  if test -e $pid_file; then
+    pid=$(< $pid_file)
+    if ps -p $pid >/dev/null 2>&1; then
+      echo -e "started with pid:  ${pid}"
+      return 0
+    fi
+    echo -e "${pid_file} exists, but PID ${pid} is not running."
+    return 2
+  fi
+
+  echo -e "stopped"
+  return 1
+}
+
+
+case "${action}" in
+  'start')
+    start
+    exit $?
+    ;;
+  'stop')
+    stop
+    exit $?
+    ;;
+  'restart')
+    stop && sleep 1 && start
+    exit $?
+    ;;
+  'status')
+    status
+    exit $?
+    ;;
+  *)
+    echo -e "Usage:\n  ${0} {start|stop|status}"
+    exit 1;
+    ;;
+esac
+
