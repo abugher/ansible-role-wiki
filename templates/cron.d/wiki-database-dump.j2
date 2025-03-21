@@ -1,0 +1,3 @@
+#!/bin/bash
+# m     h       dom     mon     dow     user    command
+{{ wiki_database_dump_minute }}     {{ wiki_database_dump_hour }}       *       *       *       root '/usr/local/bin/wiki-database-dump' > /var/log/wiki-database-dump.log 2>&1

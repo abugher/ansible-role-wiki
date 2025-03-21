@@ -1,0 +1,27 @@
+#!/bin/bash
+
+dump='/usr/share/mediawiki/wiki-database-dump/wiki.sql'
+
+case "${0##*/}" in
+  'wiki-database-dump')
+    if mariadb-dump wiki > "${dump}"; then
+      echo "Success."
+      exit 0
+    else
+      echo "Failure."
+      exit 1
+    fi
+    ;;
+  'wiki-database-restore')
+    if mariadb wiki < "${dump}"; then
+      echo "Success."
+      exit 0
+    else
+      echo "Failure."
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Failure."
+    exit 1
+esac
