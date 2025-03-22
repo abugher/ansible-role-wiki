@@ -5,11 +5,13 @@
 php_version:            "php8.2"
 php_fpm:                "{{ php_version }}-fpm"
 php_acpu:               "{{ php_version }}-apcu"
+php_bcmath:             "{{ php_version }}-bcmath"
 install_packages:
   - "imagemagick"
   - "mediawiki"
   - "{{ php_fpm }}"
   - "{{ php_acpu }}"
+  - "{{ php_bcmath }}"
 create_files:
   - owner:              'root'
     group:              'root'
@@ -78,7 +80,7 @@ start_services:
   - "mediawiki-jobs"
 restart_services:
   - 'nginx'
-  - "{{ php_fpm }}"     # Needs to restart after apcu install.
+  - "{{ php_fpm }}"     # Needs to restart after PHP extensions install.
 wiki_db_pass:           "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_database') }}"
 wgSecretKey:            "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_secret_key') }}"
 wgUpgradeKey:            "{{ lookup('community.general.passwordstore', 'aaron/neuron/wiki_upgrade_key') }}"
