@@ -2,7 +2,7 @@
 # https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu
 # https://wiki.debian.org/MediaWiki
 ---
-php_version:            "php8.2"
+php_version:            "php8.4"
 php_fpm:                "{{ php_version }}-fpm"
 php_acpu:               "{{ php_version }}-apcu"
 php_bcmath:             "{{ php_version }}-bcmath"
