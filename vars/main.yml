@@ -6,11 +6,11 @@ php_fpm:                "php{{ php_version }}-fpm"
 php_acpu:               "php{{ php_version }}-apcu"
 php_bcmath:             "php{{ php_version }}-bcmath"
 install_packages:
-  - "imagemagick"
-  - "mediawiki"
   - "{{ php_fpm }}"
   - "{{ php_acpu }}"
   - "{{ php_bcmath }}"
+  - "mediawiki"
+  - "imagemagick"
 create_files:
   - owner:              'root'
     group:              'root'
