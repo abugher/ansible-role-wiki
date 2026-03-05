@@ -10,6 +10,11 @@ This role is incomplete.  It will not deploy a working installation.  These step
 
 3.  Deploy again.
 
+Unattended setup might be possible.  Refer to [this proof of
+concept](https://github.com/wctaiwan/unattended_mw_setup).  The commands will
+need to be made conditional, only executing when setup has not already been
+completed.
+
 # PHP timeouts
 
 After initial installation and setup, connections failed with a blank page.  Web server logs showed a timeout waiting for PHP to finish.  I increased `max_exection_time` in `/etc/php/8.2/fpm/php.ini` from 30 to 300 and restarted `php8.2-fpm`.  After that, I saw a different timeout error.  After investigating several minutes, I noticed the wiki had started working.  I reduced `max_execution_time` to its default and restarted `php8.2-fpm` again.  The wiki seems to work, still.  I have not understood this sequence of events, so I am recording it instead.
