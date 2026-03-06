@@ -1,5 +1,9 @@
 # Bugs
 
+# does not work
+
+For some reason, after initial setup, once `LocalSettings.php` is installed, the site does not load.
+
 # initial deployment failure
 
 This role is incomplete.  It will not deploy a working installation.  These steps should bootstrap the server:
